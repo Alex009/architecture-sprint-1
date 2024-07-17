@@ -1,4 +1,25 @@
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const dependencies = require('./package.json').dependencies;
+
 module.exports = function override(config, env) {
-    //do stuff with the webpack config...
+    config.output.publicPath = 'auto';
+    config.plugins.push(
+        new ModuleFederationPlugin({
+            name: 'monolithApp',
+            remotes: {
+                AuthApp: 'auth@http://localhost:3001/remoteEntry.js',
+            },
+            shared: {
+                "react": {
+                    singleton: true,
+                    requiredVersion: dependencies["react"]
+                },
+                "react-dom": {
+                    singleton: true,
+                    requiredVersion: dependencies["react-dom"]
+                }
+            }
+        })
+    );
     return config;
-}
+};

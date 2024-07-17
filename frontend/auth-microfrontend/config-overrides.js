@@ -10,8 +10,7 @@ module.exports = function override(config, env) {
             remotes: {},
             exposes: {
                 "./Login": "./src/components/Login.js",
-                "./Register": "./src/components/Register.js",
-                "./CurrentUserContext": "./src/context/CurrentUserContext.js"
+                "./Register": "./src/components/Register.js"
             },
             shared: {
                 "react": {
@@ -26,4 +25,4 @@ module.exports = function override(config, env) {
         })
     );
     return config;
-}
+};

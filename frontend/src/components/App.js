@@ -10,11 +10,13 @@ import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
-import Register from "./Register";
-import Login from "./Login";
 import InfoTooltip from "./InfoTooltip";
 import ProtectedRoute from "./ProtectedRoute";
-import * as auth from "../utils/auth.js";
+//import * as auth from "../utils/auth.js";
+
+const Register = React.lazy(() => import('AuthApp/Register'));
+const Login = React.lazy(() => import('AuthApp/Login'));
+//const CurrentUserContext = React.lazy(() => import('authApp/CurrentUserContext'));
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
@@ -49,22 +51,22 @@ function App() {
   }, []);
 
   // при монтировании App описан эффект, проверяющий наличие токена и его валидности
-  React.useEffect(() => {
-    const token = localStorage.getItem("jwt");
-    if (token) {
-      auth
-        .checkToken(token)
-        .then((res) => {
-          setEmail(res.data.email);
-          setIsLoggedIn(true);
-          history.push("/");
-        })
-        .catch((err) => {
-          localStorage.removeItem("jwt");
-          console.log(err);
-        });
-    }
-  }, [history]);
+//  React.useEffect(() => {
+//    const token = localStorage.getItem("jwt");
+//    if (token) {
+//      auth
+//        .checkToken(token)
+//        .then((res) => {
+//          setEmail(res.data.email);
+//          setIsLoggedIn(true);
+//          history.push("/");
+//        })
+//        .catch((err) => {
+//          localStorage.removeItem("jwt");
+//          console.log(err);
+//        });
+//    }
+//  }, [history]);
 
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
@@ -142,39 +144,39 @@ function App() {
   }
 
   function onRegister({ email, password }) {
-    auth
-      .register(email, password)
-      .then((res) => {
-        setTooltipStatus("success");
-        setIsInfoToolTipOpen(true);
-        history.push("/signin");
-      })
-      .catch((err) => {
-        setTooltipStatus("fail");
-        setIsInfoToolTipOpen(true);
-      });
+//    auth
+//      .register(email, password)
+//      .then((res) => {
+//        setTooltipStatus("success");
+//        setIsInfoToolTipOpen(true);
+//        history.push("/signin");
+//      })
+//      .catch((err) => {
+//        setTooltipStatus("fail");
+//        setIsInfoToolTipOpen(true);
+//      });
   }
-
+//
   function onLogin({ email, password }) {
-    auth
-      .login(email, password)
-      .then((res) => {
-        setIsLoggedIn(true);
-        setEmail(email);
-        history.push("/");
-      })
-      .catch((err) => {
-        setTooltipStatus("fail");
-        setIsInfoToolTipOpen(true);
-      });
+//    auth
+//      .login(email, password)
+//      .then((res) => {
+//        setIsLoggedIn(true);
+//        setEmail(email);
+//        history.push("/");
+//      })
+//      .catch((err) => {
+//        setTooltipStatus("fail");
+//        setIsInfoToolTipOpen(true);
+//      });
   }
-
+//
   function onSignOut() {
-    // при вызове обработчика onSignOut происходит удаление jwt
-    localStorage.removeItem("jwt");
-    setIsLoggedIn(false);
-    // После успешного вызова обработчика onSignOut происходит редирект на /signin
-    history.push("/signin");
+//    // при вызове обработчика onSignOut происходит удаление jwt
+//    localStorage.removeItem("jwt");
+//    setIsLoggedIn(false);
+//    // После успешного вызова обработчика onSignOut происходит редирект на /signin
+//    history.push("/signin");
   }
 
   return (
@@ -199,10 +201,14 @@ function App() {
           />
           {/*Роут /signup и /signin не является защищёнными, т.е оборачивать их в HOC ProtectedRoute не нужно.*/}
           <Route path="/signup">
-            <Register onRegister={onRegister} />
+            <React.Suspense fallback={<h1>Loading...</h1>}>
+              <Register onRegister={onRegister} />
+            </React.Suspense>
           </Route>
           <Route path="/signin">
-            <Login onLogin={onLogin} />
+            <React.Suspense fallback={<h1>Loading...</h1>}>
+              <Login onLogin={onLogin} />
+            </React.Suspense>
           </Route>
         </Switch>
         <Footer />
