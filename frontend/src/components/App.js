@@ -6,18 +6,18 @@ import Footer from "./Footer";
 import PopupWithForm from "./PopupWithForm";
 import ImagePopup from "./ImagePopup";
 import api from "../utils/api";
-import EditProfilePopup from "./EditProfilePopup";
-import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import InfoTooltip from "./InfoTooltip";
 import ProtectedRoute from "./ProtectedRoute";
 
-import {CurrentUserContext} from 'AuthApp/CurrentUserContext';
+import {CurrentUserContext} from 'UsersApp/CurrentUserContext';
 import CheckTokenEffect from 'AuthApp/CheckTokenEffect';
 import {UserDataContext} from 'AuthApp/UserDataContext';
 
 const Register = React.lazy(() => import('AuthApp/Register'));
 const Login = React.lazy(() => import('AuthApp/Login'));
+const EditProfilePopup = React.lazy(() => import('UsersApp/EditProfilePopup'));
+const EditAvatarPopup = React.lazy(() => import('UsersApp/EditAvatarPopup'));
 
 function App() {
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
@@ -180,22 +180,25 @@ function App() {
                         </Route>
                     </Switch>
                     <Footer/>
-                    <EditProfilePopup
-                        isOpen={isEditProfilePopupOpen}
-                        onUpdateUser={handleUpdateUser}
-                        onClose={closeAllPopups}
-                    />
+                    <React.Suspense fallback={<h1>Loading...</h1>}>
+                        <EditProfilePopup
+                            isOpen={isEditProfilePopupOpen}
+                            onUpdateUser={handleUpdateUser}
+                            onClose={closeAllPopups}
+                        />
+                        <EditAvatarPopup
+                            isOpen={isEditAvatarPopupOpen}
+                            onUpdateAvatar={handleUpdateAvatar}
+                            onClose={closeAllPopups}
+                        />
+                    </React.Suspense>
                     <AddPlacePopup
                         isOpen={isAddPlacePopupOpen}
                         onAddPlace={handleAddPlaceSubmit}
                         onClose={closeAllPopups}
                     />
                     <PopupWithForm title="Вы уверены?" name="remove-card" buttonText="Да"/>
-                    <EditAvatarPopup
-                        isOpen={isEditAvatarPopupOpen}
-                        onUpdateAvatar={handleUpdateAvatar}
-                        onClose={closeAllPopups}
-                    />
+
                     <ImagePopup card={selectedCard} onClose={closeAllPopups}/>
                     <InfoTooltip
                         isOpen={isInfoToolTipOpen}

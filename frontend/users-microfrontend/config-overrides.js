@@ -5,10 +5,14 @@ module.exports = function override(config, env) {
     config.output.publicPath = 'auto';
     config.plugins.push(
         new ModuleFederationPlugin({
-            name: 'monolithApp',
-            remotes: {
-                AuthApp: 'auth@http://localhost:3001/remoteEntry.js',
-                UsersApp: 'users@http://localhost:3002/remoteEntry.js',
+            name: "users",
+            filename: "remoteEntry.js",
+            remotes: {},
+            exposes: {
+                "./EditAvatarPopup": "./src/components/EditAvatarPopup.js",
+                "./EditProfilePopup": "./src/components/EditProfilePopup.js",
+                "./ProfileInfo": "./src/components/ProfileInfo.js",
+                "./CurrentUserContext": "./src/context/CurrentUserContext.js"
             },
             shared: {
                 "react": {

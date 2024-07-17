@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {Route, Link} from 'react-router-dom';
 
+import '../index.css'
 import {UserDataContext} from "../context/UserDataContext";
 
 function SignOut({onSignOut}) {

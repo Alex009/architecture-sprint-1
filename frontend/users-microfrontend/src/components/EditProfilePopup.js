@@ -1,6 +1,8 @@
 import React from 'react';
 import PopupWithForm from './PopupWithForm';
-import { CurrentUserContext } from 'AuthApp/CurrentUserContext';
+import {CurrentUserContext} from "../context/CurrentUserContext";
+
+import '../index.css'
 
 function EditProfilePopup({ isOpen, onUpdateUser, onClose }) {
   const [name, setName] = React.useState('');
@@ -14,7 +16,7 @@ function EditProfilePopup({ isOpen, onUpdateUser, onClose }) {
     setDescription(e.target.value);
   }
 
-  const currentUser = React.useContext(CurrentUserContext);
+  const {currentUser} = React.useContext(CurrentUserContext);
 
   React.useEffect(() => {
     if (currentUser) {

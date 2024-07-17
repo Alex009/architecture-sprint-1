@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 
+import '../index.css'
 import * as auth from "../utils/auth.js";
 
 function Register({onRegisterSuccess, onRegisterFailed}) {
