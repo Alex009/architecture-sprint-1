@@ -12,11 +12,10 @@ import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import InfoTooltip from "./InfoTooltip";
 import ProtectedRoute from "./ProtectedRoute";
-//import * as auth from "../utils/auth.js";
 
 const Register = React.lazy(() => import('AuthApp/Register'));
 const Login = React.lazy(() => import('AuthApp/Login'));
-//const CurrentUserContext = React.lazy(() => import('authApp/CurrentUserContext'));
+//const CurrentUserContext = import('AuthApp/CurrentUserContext');
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
@@ -156,21 +155,18 @@ function App() {
 //        setIsInfoToolTipOpen(true);
 //      });
   }
-//
-  function onLogin({ email, password }) {
-//    auth
-//      .login(email, password)
-//      .then((res) => {
-//        setIsLoggedIn(true);
-//        setEmail(email);
-//        history.push("/");
-//      })
-//      .catch((err) => {
-//        setTooltipStatus("fail");
-//        setIsInfoToolTipOpen(true);
-//      });
+
+  function onLoginSuccess(userData) {
+    setIsLoggedIn(true);
+    setEmail(userData.email);
+    history.push("/");
   }
-//
+
+  function onLoginFailed(error) {
+    setTooltipStatus("fail");
+    setIsInfoToolTipOpen(true);
+  }
+
   function onSignOut() {
 //    // при вызове обработчика onSignOut происходит удаление jwt
 //    localStorage.removeItem("jwt");
@@ -207,7 +203,7 @@ function App() {
           </Route>
           <Route path="/signin">
             <React.Suspense fallback={<h1>Loading...</h1>}>
-              <Login onLogin={onLogin} />
+              <Login onLoginSuccess={onLoginSuccess} onLoginFailed={onLoginFailed} />
             </React.Suspense>
           </Route>
         </Switch>
