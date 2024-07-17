@@ -1,5 +1,5 @@
 import React from 'react';
-import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import { CurrentUserContext } from 'AuthApp/CurrentUserContext';
 
 function Card({ card, onCardClick, onCardLike, onCardDelete }) {
   const cardStyle = { backgroundImage: `url(${card.link})` };

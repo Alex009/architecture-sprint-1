@@ -1,11 +1,14 @@
-import React from 'react';
+import React, {useContext} from 'react';
 
 import '../blocks/login/login.css';
 import * as auth from "../utils/auth.js";
+import {UserDataContext} from "../context/UserDataContext";
 
 function Login({onLoginSuccess, onLoginFailed}) {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
+
+    const {setUserData} = useContext(UserDataContext);
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -17,6 +20,7 @@ function Login({onLoginSuccess, onLoginFailed}) {
         auth
             .login(email, password)
             .then((res) => {
+                setUserData({email: userData.email, isLoggedIn: true});
                 onLoginSuccess(userData)
             })
             .catch((err) => {

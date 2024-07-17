@@ -1,79 +1,58 @@
 import React from "react";
-import {Route, useHistory, Switch} from "react-router-dom";
+import {Route, useHistory, Switch, Link} from "react-router-dom";
 import Register from "./Register";
 import Login from "./Login";
-import * as auth from "../utils/auth.js";
+import CheckTokenEffect from "../utils/CheckTokenEffect";
+
+import {CurrentUserContext} from "../context/CurrentUserContext";
+import {UserDataContext} from "../context/UserDataContext";
+import SignOut from "./SignOut";
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-    //В компоненты добавлены новые стейт-переменные: email — в компонент App
-    const [email, setEmail] = React.useState("");
+    const [currentUser, setCurrentUser] = React.useState({});
+    const [userData, setUserData] = React.useState({userData: null, isLoggedIn: false});
 
     const history = useHistory();
 
     // при монтировании App описан эффект, проверяющий наличие токена и его валидности
-    React.useEffect(() => {
-        const token = localStorage.getItem("jwt");
-        if (token) {
-            auth
-                .checkToken(token)
-                .then((res) => {
-                    setEmail(res.data.email);
-                    setIsLoggedIn(true);
-                    history.push("/");
-                })
-                .catch((err) => {
-                    localStorage.removeItem("jwt");
-                    console.log(err);
-                });
-        }
-    }, [history]);
+    CheckTokenEffect(setUserData, history);
 
-    function onRegister({email, password}) {
-        auth
-            .register(email, password)
-            .then((res) => {
-//        setTooltipStatus("success");
-//        setIsInfoToolTipOpen(true);
-                history.push("/signin");
-            })
-            .catch((err) => {
-//        setTooltipStatus("fail");
-//        setIsInfoToolTipOpen(true);
-            });
+    function onRegisterSuccess(userData) {
+        history.push("/signin");
     }
 
     function onLoginSuccess(userData) {
-        setIsLoggedIn(true);
-        setEmail(userData.email);
         history.push("/");
     }
 
-    function onLoginFailed(error) {
-        console.error(error)
+    function onAuthFailed(error) {
+        console.error(error);
     }
 
     function onSignOut() {
-        // при вызове обработчика onSignOut происходит удаление jwt
-        localStorage.removeItem("jwt");
-        setIsLoggedIn(false);
-        // После успешного вызова обработчика onSignOut происходит редирект на /signin
         history.push("/signin");
     }
 
     return (
         // В компонент App внедрён контекст через CurrentUserContext.Provider
-        <div className="page__content">
-            {/*<Header email={email} onSignOut={onSignOut} />*/}
-            <Switch>
-                <Route path="/signup">
-                    <Register onRegister={onRegister}/>
-                </Route>
-                <Route path="/">
-                    <Login onLoginSuccess={onLoginSuccess} onLoginFailed={onLoginFailed} />
-                </Route>
-            </Switch>
-        </div>
+        <CurrentUserContext.Provider value={{currentUser, setCurrentUser}}>
+            <UserDataContext.Provider value={{userData, setUserData}}>
+                <div className="page__content">
+                    <SignOut onSignOut={onSignOut}/>
+                    <Switch>
+                        <Route path="/signup">
+                            <Register onRegisterSuccess={onRegisterSuccess} onRegisterFailed={onAuthFailed}/>
+                        </Route>
+                        <Route path="/signin">
+                            <Login onLoginSuccess={onLoginSuccess} onLoginFailed={onAuthFailed}/>
+                        </Route>
+                        <Route path="/">
+                            <Link className="auth-form__link" to="/signin">Войти</Link>
+                        </Route>
+                    </Switch>
+                </div>
+            </UserDataContext.Provider>
+        </CurrentUserContext.Provider>
     );
 }
 
