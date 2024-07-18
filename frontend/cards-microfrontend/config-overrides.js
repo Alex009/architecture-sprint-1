@@ -5,11 +5,18 @@ module.exports = function override(config, env) {
     config.output.publicPath = 'auto';
     config.plugins.push(
         new ModuleFederationPlugin({
-            name: 'monolithApp',
+            name: "cards",
+            filename: "remoteEntry.js",
             remotes: {
-                AuthApp: 'auth@http://localhost:3001/remoteEntry.js',
                 UsersApp: 'users@http://localhost:3002/remoteEntry.js',
-                CardsApp: 'cards@http://localhost:3003/remoteEntry.js',
+            },
+            exposes: {
+                "./AddPlacePopup": "./src/components/AddPlacePopup.js",
+                "./Card": "./src/components/Card.js",
+                "./ImagePopup": "./src/components/ImagePopup.js",
+                "./RemoveCardPopup": "./src/components/RemoveCardPopup.js",
+                "./RefreshCardsEffect": "./src/utils/RefreshCardsEffect.js",
+                "./CardHandlers": "./src/handlers/cardHandlers.js"
             },
             shared: {
                 "react": {

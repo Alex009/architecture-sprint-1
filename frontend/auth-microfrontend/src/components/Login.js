@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 
-import '../blocks/auth-form/auth-form.css'
+import '../index.css'
 import * as auth from "../utils/auth.js";
 import {UserDataContext} from "../context/UserDataContext";
 

@@ -3,10 +3,6 @@ import {Route, useHistory, Switch} from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
-import PopupWithForm from "./PopupWithForm";
-import ImagePopup from "./ImagePopup";
-import api from "../utils/api";
-import AddPlacePopup from "./AddPlacePopup";
 import InfoTooltip from "./InfoTooltip";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -15,11 +11,18 @@ import {UserDataContext} from 'AuthApp/UserDataContext';
 
 import CheckTokenEffect from 'AuthApp/CheckTokenEffect';
 import RefreshUserEffect from 'UsersApp/RefreshUserEffect';
+import RefreshCardsEffect from 'CardsApp/RefreshCardsEffect';
+import {likeCard, deleteCard, addCard} from 'CardsApp/CardHandlers';
 
 const Register = React.lazy(() => import('AuthApp/Register'));
 const Login = React.lazy(() => import('AuthApp/Login'));
+
 const EditProfilePopup = React.lazy(() => import('UsersApp/EditProfilePopup'));
 const EditAvatarPopup = React.lazy(() => import('UsersApp/EditAvatarPopup'));
+
+const RemoveCardPopup = React.lazy(() => import('CardsApp/RemoveCardPopup'));
+const ImagePopup = React.lazy(() => import('CardsApp/ImagePopup'));
+const AddPlacePopup = React.lazy(() => import('CardsApp/AddPlacePopup'));
 
 function App() {
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
@@ -40,14 +43,7 @@ function App() {
     const history = useHistory();
 
     // Запрос к API за информацией о пользователе и массиве карточек выполняется единожды, при монтировании.
-    React.useEffect(() => {
-        api
-            .getCardList()
-            .then((cardData) => {
-                setCards(cardData);
-            })
-            .catch((err) => console.log(err));
-    }, []);
+    RefreshCardsEffect(setCards);
     RefreshUserEffect(setCurrentUser);
 
     // при монтировании App описан эффект, проверяющий наличие токена и его валидности
@@ -78,34 +74,15 @@ function App() {
     }
 
     function handleCardLike(card) {
-        const isLiked = card.likes.some((i) => i._id === currentUser._id);
-        api
-            .changeLikeCardStatus(card._id, !isLiked)
-            .then((newCard) => {
-                setCards((cards) =>
-                    cards.map((c) => (c._id === card._id ? newCard : c))
-                );
-            })
-            .catch((err) => console.log(err));
+        likeCard(currentUser, card, setCards);
     }
 
     function handleCardDelete(card) {
-        api
-            .removeCard(card._id)
-            .then(() => {
-                setCards((cards) => cards.filter((c) => c._id !== card._id));
-            })
-            .catch((err) => console.log(err));
+        deleteCard(currentUser, card, setCards);
     }
 
     function handleAddPlaceSubmit(newCard) {
-        api
-            .addCard(newCard)
-            .then((newCardFull) => {
-                setCards([newCardFull, ...cards]);
-                closeAllPopups();
-            })
-            .catch((err) => console.log(err));
+        addCard(newCard, cards, setCards, closeAllPopups);
     }
 
     function onRegisterSuccess(userData) {
@@ -173,15 +150,15 @@ function App() {
                             onSuccess={closeAllPopups}
                             onClose={closeAllPopups}
                         />
-                    </React.Suspense>
-                    <AddPlacePopup
-                        isOpen={isAddPlacePopupOpen}
-                        onAddPlace={handleAddPlaceSubmit}
-                        onClose={closeAllPopups}
-                    />
-                    <PopupWithForm title="Вы уверены?" name="remove-card" buttonText="Да"/>
 
-                    <ImagePopup card={selectedCard} onClose={closeAllPopups}/>
+                        <AddPlacePopup
+                            isOpen={isAddPlacePopupOpen}
+                            onAddPlace={handleAddPlaceSubmit}
+                            onClose={closeAllPopups}
+                        />
+                        <ImagePopup card={selectedCard} onClose={closeAllPopups}/>
+                        <RemoveCardPopup />
+                    </React.Suspense>
                     <InfoTooltip
                         isOpen={isInfoToolTipOpen}
                         onClose={closeAllPopups}
