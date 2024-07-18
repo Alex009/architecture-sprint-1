@@ -12,7 +12,8 @@ module.exports = function override(config, env) {
                 "./EditAvatarPopup": "./src/components/EditAvatarPopup.js",
                 "./EditProfilePopup": "./src/components/EditProfilePopup.js",
                 "./ProfileInfo": "./src/components/ProfileInfo.js",
-                "./CurrentUserContext": "./src/context/CurrentUserContext.js"
+                "./CurrentUserContext": "./src/context/CurrentUserContext.js",
+                "./RefreshUserEffect": "./src/utils/RefreshUserEffect.js"
             },
             shared: {
                 "react": {

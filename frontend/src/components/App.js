@@ -11,8 +11,10 @@ import InfoTooltip from "./InfoTooltip";
 import ProtectedRoute from "./ProtectedRoute";
 
 import {CurrentUserContext} from 'UsersApp/CurrentUserContext';
-import CheckTokenEffect from 'AuthApp/CheckTokenEffect';
 import {UserDataContext} from 'AuthApp/UserDataContext';
+
+import CheckTokenEffect from 'AuthApp/CheckTokenEffect';
+import RefreshUserEffect from 'UsersApp/RefreshUserEffect';
 
 const Register = React.lazy(() => import('AuthApp/Register'));
 const Login = React.lazy(() => import('AuthApp/Login'));
@@ -40,13 +42,13 @@ function App() {
     // Запрос к API за информацией о пользователе и массиве карточек выполняется единожды, при монтировании.
     React.useEffect(() => {
         api
-            .getAppInfo()
-            .then(([cardData, userData]) => {
-                setCurrentUser(userData);
+            .getCardList()
+            .then((cardData) => {
                 setCards(cardData);
             })
             .catch((err) => console.log(err));
     }, []);
+    RefreshUserEffect(setCurrentUser);
 
     // при монтировании App описан эффект, проверяющий наличие токена и его валидности
     CheckTokenEffect(setUserData, history);
@@ -73,26 +75,6 @@ function App() {
 
     function handleCardClick(card) {
         setSelectedCard(card);
-    }
-
-    function handleUpdateUser(userUpdate) {
-        api
-            .setUserInfo(userUpdate)
-            .then((newUserData) => {
-                setCurrentUser(newUserData);
-                closeAllPopups();
-            })
-            .catch((err) => console.log(err));
-    }
-
-    function handleUpdateAvatar(avatarUpdate) {
-        api
-            .setUserAvatar(avatarUpdate)
-            .then((newUserData) => {
-                setCurrentUser(newUserData);
-                closeAllPopups();
-            })
-            .catch((err) => console.log(err));
     }
 
     function handleCardLike(card) {
@@ -180,15 +162,15 @@ function App() {
                         </Route>
                     </Switch>
                     <Footer/>
-                    <React.Suspense fallback={<h1>Loading...</h1>}>
+                    <React.Suspense fallback={<></>}>
                         <EditProfilePopup
                             isOpen={isEditProfilePopupOpen}
-                            onUpdateUser={handleUpdateUser}
+                            onSuccess={closeAllPopups}
                             onClose={closeAllPopups}
                         />
                         <EditAvatarPopup
                             isOpen={isEditAvatarPopupOpen}
-                            onUpdateAvatar={handleUpdateAvatar}
+                            onSuccess={closeAllPopups}
                             onClose={closeAllPopups}
                         />
                     </React.Suspense>
