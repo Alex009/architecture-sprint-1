@@ -1,0 +1,15 @@
+FROM node:18-slim
+
+ENV NODE_ENV development
+
+WORKDIR /app
+
+RUN npm i -g jest && npx playwright install --with-deps chromium
+
+COPY . .
+
+RUN yarn
+
+CMD [ "yarn", "start" ]
+
+EXPOSE 3000

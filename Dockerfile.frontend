@@ -1,15 +1,23 @@
-FROM node:18-slim
+FROM node:18-slim AS build
 
 ENV NODE_ENV development
 
 WORKDIR /app
 
-COPY . .
+COPY package.json package.json
 
-RUN npm install \
-    && npm i -g jest \
-    && npx playwright install --with-deps chromium
+RUN yarn
 
-CMD [ "yarn", "start" ]
+COPY public public
+COPY config-overrides.js config-overrides.js
+COPY src src
 
-EXPOSE 5000
+RUN yarn build
+
+FROM nginx:stable-alpine
+
+COPY --from=build /app/build /usr/share/nginx/html
+
+CMD ["nginx", "-g", "daemon off;"]
+
+EXPOSE 80
