@@ -2,11 +2,11 @@ services:
 
   mongo:
     image: mongo
-    restart: always
+    restart: unless-stopped
     logging:
       driver: none
     healthcheck:
-      test:  echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 10s
       retries: 5
@@ -34,7 +34,7 @@ services:
       mongo:
         condition: service_healthy
     ports:
-      - 3001:3000
+      - 4000:3000
     healthcheck:
       interval: 10s
       timeout: 2s 
@@ -45,18 +45,65 @@ services:
   frontend-test:
     build:
       context: frontend
-      dockerfile: ../Dockerfile.frontend
+      dockerfile: ../Dockerfile.frontend.test
     command: yarn test:microfrontend
     restart: 'no'
     environment:
-          CI: true
+      CI: true
+    # так как теперь у нас микрофронтенды, то нужно чтобы тесты могли загрузить все части фронта.
+    network_mode: host
+    depends_on:
+      microfrontend-auth:
+        condition: service_started
+      microfrontend-users:
+        condition: service_started
+      microfrontend-cards:
+        condition: service_started
 
   frontend:
     build:
       context: frontend
       dockerfile: ../Dockerfile.frontend
     ports:
-      - 3000:3000
+      - 3000:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
+      microfrontend-auth:
+        condition: service_started
+      microfrontend-users:
+        condition: service_started
+      microfrontend-cards:
+        condition: service_started
+
+  microfrontend-auth:
+    build:
+      context: frontend/auth-microfrontend
+      dockerfile: ../../Dockerfile.frontend
+    ports:
+      - 3001:80
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  microfrontend-users:
+    build:
+      context: frontend/users-microfrontend
+      dockerfile: ../../Dockerfile.frontend
+    ports:
+      - 3002:80
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  microfrontend-cards:
+    build:
+      context: frontend/cards-microfrontend
+      dockerfile: ../../Dockerfile.frontend
+    ports:
+      - 3003:80
+    depends_on:
+      microfrontend-users:
+        condition: service_started
       backend:
         condition: service_healthy
